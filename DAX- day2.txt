@@ -1,0 +1,25 @@
+EVALUATE
+    FILTER(
+        'public customer',
+        'public customer'[first_name]="erica"  // case insensitive
+    )
+
+for sensitive use
+
+EVALUATE
+    FILTER(
+        'public customer',
+        EXACT('public customer'[first_name], "erica")
+    )
+
+
+EVALUATE
+ROW("count",
+    CALCULATE(
+        COUNTROWS('public payment'),
+        'public payment'[payment_date] >= DATE(2020, 1, 26),
+        'public payment'[payment_date] <= DATE(2020, 1, 27) + TIME(23, 59, 0),
+        'public payment'[amount] >= 1.99,
+        'public payment'[amount] <= 3.99
+    )
+)
