@@ -23,3 +23,45 @@ ROW("count",
         'public payment'[amount] <= 3.99
     )
 )
+
+
+-------------contains-----------
+
+CONTAINS(
+    'public film',
+    'public film'[description], "Documentary"
+)
+
+this returns a true or false (singley)
+
+-----------------SERACH-----------------
+
+
+SEARCH(FindText, WithinText, [StartPosition], [NotFoundValue])
+
+EVALUATE
+    ROW(
+        "counter",
+        CALCULATE(
+            COUNTROWS('public film'),
+            SEARCH(
+                "Documentary",
+                'public film'[description],
+                1,
+                0
+            ) > 0
+        )
+    )
+
+
+EVALUATE
+    ROW(
+        "count",
+        CALCULATE(
+            COUNTROWS(
+                'public customer'
+            ),
+            LEN('public customer'[first_name])=3,
+            EXACT("X",RIGHT('public customer'[last_name],1)) || EXACT("Y",RIGHT('public customer'[last_name],1))
+        )
+    )
