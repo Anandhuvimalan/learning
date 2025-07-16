@@ -100,3 +100,23 @@ SUMMARIZE(
     COUNTROWS('public payment')
 )
 ORDER BY [count] DESC
+
+
+EVALUATE
+VAR ey=
+SUMMARIZE(
+    ADDCOLUMNS(
+        FILTER(
+        'public payment',
+        DATEVALUE('public payment'[payment_date]) in {DATE(2020,04,28),DATE(2020,04,29),DATE(2020,04,30)}
+        ),
+        "datey",DATEVALUE('public payment'[payment_date])),
+        'public payment'[customer_id],
+        [datey],
+        "average",AVERAGE('public payment'[amount]),
+        "count",COUNTROWS('public payment')
+    )
+
+RETURN
+FILTER(ey,[count]>1)
+ORDER BY [average] DESC
