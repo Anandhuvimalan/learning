@@ -65,3 +65,38 @@ EVALUATE
             EXACT("X",RIGHT('public customer'[last_name],1)) || EXACT("Y",RIGHT('public customer'[last_name],1))
         )
     )
+
+
+EVALUATE
+    ROW(
+        "sum",
+        SUM('public film'[replacement_cost]),
+        "average",
+        ROUND(AVERAGE('public film'[replacement_cost]),1),
+        "max",
+        MAX('public film'[replacement_cost]),
+        "min",
+        MIN('public film'[replacement_cost])
+
+    )
+
+EVALUATE
+    SUMMARIZECOLUMNS(
+        'public payment'[customer_id],
+        'public payment',
+        "sum",
+        sum('public payment'[amount]),
+        "mean",
+        AVERAGE('public payment'[amount])
+    )
+    ORDER BY [sum] DESC
+
+EVALUATE
+SUMMARIZE(
+    ADDCOLUMNS(FILTER('public payment', 'public payment'[amount] <> 0),"datey",DATE(YEAR('public payment'[payment_date]), MONTH('public payment'[payment_date]), DAY('public payment'[payment_date]))),
+    'public payment'[staff_id],
+    [datey],
+    "count",
+    COUNTROWS('public payment')
+)
+ORDER BY [count] DESC
