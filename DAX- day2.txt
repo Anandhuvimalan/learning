@@ -120,3 +120,29 @@ SUMMARIZE(
 RETURN
 FILTER(ey,[count]>1)
 ORDER BY [average] DESC
+
+
+EVALUATE
+    SELECTCOLUMNS(
+        FILTER(
+            'public customer',
+            LEN('public customer'[first_name])>10 || LEN('public customer'[last_name])>10
+        ),
+        "lower_first_name",LOWER('public customer'[first_name]),
+        "lower_last_name",LOWER('public customer'[last_name])
+
+    )
+    
+
+EVALUATE
+    ADDCOLUMNS('public customer',"er",
+    left('public customer'[first_name],1) & "." &left('public customer'[last_name],1))
+
+
+
+EVALUATE
+    SELECTCOLUMNS(
+        'public customer',
+        "tet",
+        'public customer'[last_name] & " " & (LEFT('public customer'[email],SEARCH(".",'public customer'[email],1,0)-1))
+    )
