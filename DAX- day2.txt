@@ -1,3 +1,14 @@
+SEARCH(FindText, WithinText, [StartPosition], [NotFoundValue])
+Returns the starting position of one text string within another text string. SEARCH is not case-sensitive.
+always give the notfound value.
+
+TOPN(N_Value, Table, [OrderBy_Expression1], [Order1], ...)
+Returns a given number of top rows according to a specified expression.
+
+MID(Text, StartPosition, NumberOfCharacters)
+Returns a string of characters from the middle of a text string, given a starting position and length.
+
+
 EVALUATE
     FILTER(
         'public customer',
@@ -146,3 +157,58 @@ EVALUATE
         "tet",
         'public customer'[last_name] & " " & (LEFT('public customer'[email],SEARCH(".",'public customer'[email],1,0)-1))
     )
+
+
+EVALUATE
+ADDCOLUMNS (
+    'public customer',
+    "MaskedEmail",
+    VAR email     = 'public customer'[email]
+    VAR firstChar = LEFT(email, 1)
+    VAR dotPos    = SEARCH(".", email, 1, -1)
+    VAR dotPart   = IF(dotPos = -1, "", MID(email, dotPos, 2))
+    VAR atPos     = SEARCH("@", email, 1, -1)
+    VAR domain    = IF(atPos = -1, "", MID(email, atPos, LEN(email)))
+    RETURN
+        firstChar & "***" & dotPart & "***" & domain
+)
+
+
+EVALUATE
+    ADDCOLUMNS(
+        'bookings flights',
+        "er",
+        if(
+            ISBLANK('bookings flights'[actual_departure]),"no departure",
+            if(
+             ('bookings flights'[actual_departure]-'bookings flights'[scheduled_departure])<TIME(0,5,0),"one time","no")
+            )
+        )
+
+
+DEFINE
+var tb= NATURALINNERJOIN(
+    ADDCOLUMNS(
+        'bookings boarding_passes',
+        "seat_no1", FORMAT('bookings boarding_passes'[seat_no], "")
+    ),
+    ADDCOLUMNS(
+        'bookings seats',
+        "seat_no1", FORMAT('bookings seats'[seat_no], "")
+    )
+)
+
+EVALUATE
+    SUMMARIZE(
+        tb,
+        'bookings seats'[fare_conditions],
+        "count",
+        COUNTROWS(
+            FILTER(
+                tb,
+                'bookings seats'[fare_conditions]=EARLIER('bookings seats'[fare_conditions])
+            )
+        )
+    )
+
+

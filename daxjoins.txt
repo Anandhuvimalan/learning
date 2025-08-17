@@ -1,0 +1,61 @@
+EXCEPT(A, B) returns all rows from A that do not exist in B
+
+DEFINE
+var tb= NATURALINNERJOIN(
+    ADDCOLUMNS(
+        'bookings boarding_passes',
+        "seat_no1", FORMAT('bookings boarding_passes'[seat_no], "")
+    ),
+    ADDCOLUMNS(
+        'bookings seats',
+        "seat_no1", FORMAT('bookings seats'[seat_no], "")
+    )
+)
+
+EVALUATE
+    SUMMARIZE(
+        tb,
+        'bookings seats'[fare_conditions],
+        "count",
+        COUNTROWS(
+            FILTER(
+                tb,
+                'bookings seats'[fare_conditions]=EARLIER('bookings seats'[fare_conditions])
+            )
+        )
+    )
+
+
+
+DEFINE
+var temp1= 
+UNION(
+    NATURALLEFTOUTERJOIN(
+        ADDCOLUMNS(
+            'bookings tickets',
+            "tic1",FORMAT('bookings tickets'[ticket_no],"")
+        ),
+        ADDCOLUMNS(
+            'bookings boarding_passes',
+            "tic1",FORMAT('bookings boarding_passes'[ticket_no],"")
+        )
+    ),
+    FILTER(
+        NATURALLEFTOUTERJOIN(
+        ADDCOLUMNS(
+            'bookings boarding_passes',
+            "tic1",FORMAT('bookings boarding_passes'[ticket_no],"")
+        ),
+        ADDCOLUMNS(
+            'bookings tickets',
+            "tic1",FORMAT('bookings tickets'[ticket_no],"")
+        )
+    ),
+    ISBLANK('bookings tickets'[ticket_no])
+    )
+)
+EVALUATE
+ROW(
+    "count",
+    COUNTROWS(FILTER(temp1,ISBLANK('bookings boarding_passes'[ticket_no])))
+)
